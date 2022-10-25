@@ -6,6 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -51,7 +55,49 @@ class MainActivity : AppCompatActivity() {
         binding.btnStrzal.setOnClickListener {
             takePhoto()
 
+
         }
+        var spinner1 = binding.txtFolder
+
+        // var spinnerList = listOf("One", "Two", "Three")
+        var spinnerList = arrayListOf<String>("One", "Two", "Three")
+        spinnerList.add("Four")
+
+        val adapter = ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, spinnerList)
+        //val adapter = ArrayAdapter.createFromResource(this, android.R.layout.simple_spinner_item, spinnerList)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+
+        spinner1.adapter = adapter
+
+        spinner1.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                Toast.makeText(this@MainActivity, "You selected:" + outputDirectory.toString() +
+                        "/" +  p0?.getItemAtPosition(p2).toString(),
+                    Toast.LENGTH_LONG).show()
+
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+
+
+        }
+
+ /*    val txtFolder: Spinner = binding.txtFolder
+        ArrayAdapter.createFromResource(
+            this,
+                    R.array.listOfFolders,
+                    android.R.layout.simple_spinner_dropdown_item ).also {
+                adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner
+            txtFolder.adapter = adapter
+
+        }
+*/
 
     }
 
@@ -146,6 +192,8 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
+
 
 
     override fun onRequestPermissionsResult(
