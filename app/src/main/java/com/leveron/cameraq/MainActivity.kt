@@ -18,6 +18,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.leveron.cameraq.R
 import com.leveron.cameraq.databinding.ActivityMainBinding
 import java.io.File
@@ -38,6 +39,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
 //        setContentView(R.layout.activity_main)
 
+        var spinner1 = binding.txtFolder
+
         setContentView(binding.root)
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -54,10 +57,21 @@ class MainActivity : AppCompatActivity() {
     }
         binding.btnStrzal.setOnClickListener {
             takePhoto()
-
-
         }
-        var spinner1 = binding.txtFolder
+
+        binding.btnStrzal.setOnLongClickListener {
+            if (spinner1.visibility == View.VISIBLE)
+            {
+                spinner1.visibility = View.INVISIBLE
+            }else{
+                spinner1.visibility = View.VISIBLE
+            }
+
+
+            true
+        }
+
+
 
         // var spinnerList = listOf("One", "Two", "Three")
         var spinnerList = arrayListOf<String>("One", "Two", "Three")
@@ -84,6 +98,7 @@ class MainActivity : AppCompatActivity() {
 
 
         }
+
 
  /*    val txtFolder: Spinner = binding.txtFolder
         ArrayAdapter.createFromResource(
