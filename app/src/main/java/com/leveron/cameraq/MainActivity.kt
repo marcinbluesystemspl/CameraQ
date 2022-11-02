@@ -33,7 +33,7 @@ import java.util.concurrent.Executors
 class MainActivity : AppCompatActivity() {
 /*
 D ozrobienia TODO - trzeba zrobi© odswierzenie lisdty folderow na spinnerze
-TODO - trzeba wyrzuci© spinnera na ofdzielny folder
+TODO - trzeba wyrzuci© spinnera na odzielny folder
 TODO trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu
 TODO  trzeba jeszcze poukladac ikonki
 
@@ -47,10 +47,16 @@ TODO  trzeba jeszcze poukladac ikonki
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
 //        setContentView(R.layout.activity_main)
+
+        //sprawdzam datę i wersję programu
+        checkDate()
+
+
 
         var spinner1 = binding.txtFolder
         var btnAdd = binding.btnAddFolder
@@ -72,6 +78,29 @@ TODO  trzeba jeszcze poukladac ikonki
 
 
     }
+        fun reloadSpinnerAdapter() {
+
+
+            var files: Array<File>
+            var spinnerList = arrayListOf<String>("Foldery:")
+            spinnerList.clear()
+            files = listOfDirs.listFiles(FileFilter { it.isDirectory })!!
+
+
+            Log.d("aaaa", listOfDirs.toString())
+            for (a in files) {
+                spinnerList.add(a.name.toString())
+                Log.d("aaaa", a.name.toString())
+
+            }
+
+
+            val adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerList)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+
+            spinner1.adapter = adapter
+        }
 
 
         binding.btnStrzal.setOnClickListener {
@@ -97,8 +126,7 @@ TODO  trzeba jeszcze poukladac ikonki
 
         binding.btnAddFolder.setOnClickListener {
             val newFolder : File
-            //var newFolderString : String = listOfDirs.toString()
-            //newFolderString += "\" + $folderSelected
+
 
             if (txtInputFolderName.length()==0){
                 Toast.makeText(this, "Folder name required", Toast.LENGTH_SHORT).show()
@@ -117,32 +145,15 @@ TODO  trzeba jeszcze poukladac ikonki
 
 
             }
+        //dodałeś folder to przeładuj listę folderów w adapterze spinner
+            reloadSpinnerAdapter()
 
         }
 
 
-// Tworzymy spinner adapter z lista folderow
-
-        var files : Array<File>
-        var spinnerList = arrayListOf<String>("Foldery:")
-        spinnerList.clear()
-        files = listOfDirs.listFiles(FileFilter { it.isDirectory })!!
 
 
-        Log.d("aaaa", listOfDirs.toString())
-        for (a in  files) {
-            spinnerList.add(a.name.toString())
-            Log.d("aaaa", a.name.toString())
-
-        }
-
-
-        val adapter = ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, spinnerList)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-
-        spinner1.adapter = adapter
-
+        reloadSpinnerAdapter()
         spinner1.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 Toast.makeText(this@MainActivity, "You selected:" +  p0?.getItemAtPosition(p2).toString(),
@@ -199,7 +210,7 @@ TODO  trzeba jeszcze poukladac ikonki
                     Toast.makeText(
                         this@MainActivity,
                         "$msg $savedUri",
-                        Toast.LENGTH_LONG
+                        Toast.LENGTH_SHORT
                     ).show()
 
 

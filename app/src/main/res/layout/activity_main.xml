@@ -14,7 +14,7 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0">
@@ -30,6 +30,7 @@
         android:background="@android:drawable/ic_menu_camera"
         android:text="@string/strzal"
         android:textSize="20sp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/viewFinder"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -37,36 +38,43 @@
         android:id="@+id/txtFolder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="140dp"
+        android:layout_marginBottom="8dp"
         android:background="@color/white"
         android:dropDownWidth="wrap_content"
         android:padding="10dp"
         android:spinnerMode="dropdown"
         app:layout_constraintBottom_toTopOf="@+id/btnStrzal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <EditText
         android:id="@+id/txtInputFolderName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="56dp"
+        android:alpha="127"
+        android:autofillHints=""
         android:background="@color/white"
         android:hint="@string/nawa_folderu"
         android:inputType="text"
+        android:minHeight="48dp"
         android:padding="10dp"
         android:textColorHint="#757575"
-        app:layout_constraintBottom_toTopOf="@+id/txtFolder"
-        app:layout_constraintEnd_toStartOf="@+id/btnAddFolder"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/btnStrzal"
+        app:layout_constraintEnd_toStartOf="@+id/btnAddFolder" />
 
     <Button
         android:id="@+id/btnAddFolder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
+        android:layout_marginBottom="56dp"
         android:padding="10dp"
         android:text="@string/btnadd"
-        app:layout_constraintBottom_toTopOf="@+id/txtFolder"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/btnStrzal"
         app:layout_constraintEnd_toEndOf="parent" />
 
 
