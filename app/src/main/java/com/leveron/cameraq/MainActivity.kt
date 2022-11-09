@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Debug
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -53,7 +54,8 @@ DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjec
     private var  imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
-
+    lateinit var folderSelected : String
+    lateinit var folderSelectedPath: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,14 +67,11 @@ DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjec
 
 
 
-        var spinner1 = binding.txtFolder
-        var btnAdd = binding.btnAddFolder
-        var txtInputFolderName = binding.txtInputFolderName
-        var listOfDirs : File = getOutputDirectory()
-        lateinit var folderSelected : String
+
 
         setContentView(binding.root)
         outputDirectory = getOutputDirectory()
+        folderSelectedPath = ""
         cameraExecutor = Executors.newSingleThreadExecutor()
 
     if (allPermissionGranted()) {
@@ -85,14 +84,23 @@ DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjec
 
 
     }
+
+        var spinner1 = binding.txtFolder
+        var btnAdd = binding.btnAddFolder
+        var txtInputFolderName = binding.txtInputFolderName
+        var listOfDirs : File = getOutputDirectory()
+
+
+
         fun reloadSpinnerAdapter(text : String) {
 
 
             var files: Array<File>
             var spinnerList = arrayListOf<String>("Foldery:")
             spinnerList.clear()
-            files = listOfDirs.listFiles(FileFilter { it.isDirectory })!!
-            files.sort()
+
+                files = listOfDirs.listFiles(FileFilter { it.isDirectory })!!
+                files.sort()
 
 
 
@@ -144,14 +152,14 @@ DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjec
                 Toast.makeText(this, "Folder name required", Toast.LENGTH_SHORT).show()
             }else{
                 newFolder = File(listOfDirs.toString() + "/"+ txtInputFolderName.text)
-                Log.d("aaaa", listOfDirs.toString())
-                Log.d("aaaa", listOfDirs.toString() + "/"+ txtInputFolderName.text)
+                Log.d("cccc", listOfDirs.toString())
+                Log.d("cccc", listOfDirs.toString() + "/"+ txtInputFolderName.text)
 
                 if (newFolder.exists()) {
                     Toast.makeText(this, "Folder already exist", Toast.LENGTH_SHORT).show()
                 }else{
                     newFolder.mkdirs()
-                    Toast.makeText(this, "Folder $txtInputFolderName created", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Folder " + txtInputFolderName.text + " created", Toast.LENGTH_SHORT).show()
                 }
 
 
@@ -172,12 +180,13 @@ DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjec
         spinner1.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 Toast.makeText(this@MainActivity, "You selected:" +  p0?.getItemAtPosition(p2).toString(),
-                    Toast.LENGTH_LONG).show()
+                    Toast.LENGTH_SHORT).show()
                 folderSelected = p0?.getItemAtPosition(p2).toString()
-
                 //ustaw folder na gornej belce
                 title = APP_NAME + " - " + folderSelected
 
+                //ustawe nowa sciezke do plikow
+                folderSelectedPath = listOfDirs.toString() + "/" + folderSelected
 
             }
 
@@ -193,20 +202,49 @@ DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjec
     }
 
     private fun getOutputDirectory(): File{
-        val mediaDir = externalMediaDirs.firstOrNull()?.let { mFile->
+        /*var mediaDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath().let { mFile ->
             File(mFile, resources.getString(R.string.app_name)).apply {
                 mkdirs()
             }
+        }   */
+        var mediaDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()
+        var mFile = File(mediaDir + "/" + resources.getString(R.string.app_name))
+
+        if (mFile.exists() == true) {
+            return mFile
+        }else{
+            mFile.mkdirs()
+            return mFile
         }
-        return if (mediaDir != null && mediaDir.exists())
-            mediaDir else filesDir
+
+
+
+        /*
+        val mediaDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).let { mFile->
+            File(mFile, resources.getString(R.string.app_name)).apply {
+                mkdirs()
+            }
+        }*/
+
+        Log.d("bbbb", mFile.toString())
+        Log.d("bbbb", "tu:" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath())
+        //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()
+       // return if (mediaDir != null && mediaDir.exists())
+       //     mediaDir else filesDir
+
     }
 
 
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
+        if (folderSelectedPath == "") {
+            folderSelectedPath = getOutputDirectory().toString()
+            folderSelectedPath = folderSelectedPath + "/"
+        }
+        folderSelectedPath = folderSelectedPath + "/"
         val photoFile = File(
-                outputDirectory,
+                folderSelectedPath,
+           //     outputDirectory,
                 SimpleDateFormat(
                     Constants.FILE_NAME_FORMAT,
                         Locale.getDefault())
@@ -223,7 +261,7 @@ DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjec
             object :ImageCapture.OnImageSavedCallback{
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
 
-                    val savedUri = Uri.fromFile(photoFile)
+                    val savedUri = photoFile.name.toString()
                     val msg = "Photo saved"
 
                     Toast.makeText(
@@ -291,6 +329,7 @@ DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjec
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == Constants.REQUEST_CODE_PERMISSIONS) {
             startCamera()
