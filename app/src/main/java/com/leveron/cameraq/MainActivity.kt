@@ -20,6 +20,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.leveron.cameraq.Constants.APP_NAME
 import com.leveron.cameraq.Constants.TAG
 import com.leveron.cameraq.R
 import com.leveron.cameraq.databinding.ActivityMainBinding
@@ -32,15 +33,21 @@ import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
 /*
-D ozrobienia TODO - trzeba zrobi© odswierzenie lisdty folderow na spinnerze
+Dozrobienia
+
 TODO - trzeba wyrzuci© spinnera na odzielny folder
-TODO trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu
-TODO  trzeba jeszcze poukladac ikonki
 
 
+TODO - toast - zminimalizowac i skrócić.  max 2-3 wyrazy
+TODO - toast dać niżej bo wchodzi na przycisk
+TODO - przełączenie pomiędzy zoomami z 0,0 na  zoom 0,5   / dwustanowy guzik /
 
-
-
+DONE - po dodaniu folderu nowego ustaw na niego focus - ZROBIONE
+DONE - trzeba zrobi© odswierzenie lisdty folderow na spinnerze - ZROBIONE
+DONE- jak sie chowa spinner to aktualny folder na gorze sie wyświetli - ZROBIONE
+DONE - trzeba jeszcze poukladac ikonki - ZROBIONE
+DONE - posortowanie na liście od a do z - ZROBIONE
+DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu  -> jak nie ma folderu to wgrywamy do głównego aplikacji
  */
     private lateinit var binding: ActivityMainBinding
     private var  imageCapture: ImageCapture? = null
@@ -78,13 +85,15 @@ TODO  trzeba jeszcze poukladac ikonki
 
 
     }
-        fun reloadSpinnerAdapter() {
+        fun reloadSpinnerAdapter(text : String) {
 
 
             var files: Array<File>
             var spinnerList = arrayListOf<String>("Foldery:")
             spinnerList.clear()
             files = listOfDirs.listFiles(FileFilter { it.isDirectory })!!
+            files.sort()
+
 
 
             Log.d("aaaa", listOfDirs.toString())
@@ -100,6 +109,9 @@ TODO  trzeba jeszcze poukladac ikonki
 
 
             spinner1.adapter = adapter
+
+            if (text.isNotEmpty())  spinner1.setSelection(adapter.getPosition(text))
+
         }
 
 
@@ -146,19 +158,26 @@ TODO  trzeba jeszcze poukladac ikonki
 
             }
         //dodałeś folder to przeładuj listę folderów w adapterze spinner
-            reloadSpinnerAdapter()
+            reloadSpinnerAdapter(txtInputFolderName.text.toString())
+            //czysc folder
+            txtInputFolderName.text = null
+
 
         }
 
 
 
 
-        reloadSpinnerAdapter()
+        reloadSpinnerAdapter(text="")
         spinner1.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 Toast.makeText(this@MainActivity, "You selected:" +  p0?.getItemAtPosition(p2).toString(),
                     Toast.LENGTH_LONG).show()
                 folderSelected = p0?.getItemAtPosition(p2).toString()
+
+                //ustaw folder na gornej belce
+                title = APP_NAME + " - " + folderSelected
+
 
             }
 
