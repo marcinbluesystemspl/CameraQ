@@ -1,6 +1,7 @@
 package com.leveron.cameraq
 
 import android.content.ContentValues
+import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.Uri
@@ -11,6 +12,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
@@ -164,9 +166,7 @@ DONE  - toast dać niżej bo wchodzi na przycisk
                     newFolder.mkdirs()
                     Toast.makeText(this, "Folder " + txtInputFolderName.text + " created", Toast.LENGTH_SHORT).show()
                 }
-
-
-
+            it.hideKeyboard()
             }
         //dodałeś folder to przeładuj listę folderów w adapterze spinner
             reloadSpinnerAdapter(txtInputFolderName.text.toString())
@@ -258,20 +258,27 @@ DONE  - toast dać niżej bo wchodzi na przycisk
                     val savedUri = photoFile.name.toString()
                     val msg = "Photo saved"
 
+                    val csoundCameraShot = MediaPlayer.create(this@MainActivity,R.raw.camera_shot)
+                    csoundCameraShot.start()
+
                     Toast.makeText(
                         this@MainActivity,
                         "$msg $savedUri",
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    val csoundCameraShot = MediaPlayer.create(this@MainActivity,R.raw.camera_shot)
-                    csoundCameraShot.start()
+
 
 
                 }
 
                 override fun onError(exception: ImageCaptureException) {
                    Log.e(Constants.TAG, "onError: ${exception.message}", exception)
+
+                    val csoundCameraShot = MediaPlayer.create(this@MainActivity,R.raw.camera_error)
+                    csoundCameraShot.start()
+
+
                     Toast.makeText(
                         this@MainActivity,
                         "Error:" + exception.message,
@@ -325,7 +332,10 @@ DONE  - toast dać niżej bo wchodzi na przycisk
     }
 
 
-
+    fun View.hideKeyboard() {
+        val inputManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.hideSoftInputFromWindow(windowToken, 0)
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

@@ -2,6 +2,7 @@ package com.leveron.cameraq
 
 import android.R
 import android.util.Log
+import android.view.View
 import android.widget.ArrayAdapter
 import java.io.File
 import java.text.SimpleDateFormat
@@ -21,4 +22,3 @@ fun checkDate()
 
     }
 }
-
