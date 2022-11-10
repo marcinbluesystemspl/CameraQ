@@ -1,11 +1,13 @@
 package com.leveron.cameraq
 
+import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Debug
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +22,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.contentValuesOf
 import androidx.core.view.isVisible
 import com.leveron.cameraq.Constants.APP_NAME
 import com.leveron.cameraq.Constants.TAG
@@ -32,16 +35,14 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+
 class MainActivity : AppCompatActivity() {
 /*
-Dozrobienia
+Do zrobienia
 
 TODO - trzeba wyrzuci© spinnera na odzielny folder
-
-
-TODO - toast - zminimalizowac i skrócić.  max 2-3 wyrazy
-TODO - toast dać niżej bo wchodzi na przycisk
 TODO - przełączenie pomiędzy zoomami z 0,0 na  zoom 0,5   / dwustanowy guzik /
+TODO - zrobić wersje zapisu zdjec dla API30
 
 DONE - po dodaniu folderu nowego ustaw na niego focus - ZROBIONE
 DONE - trzeba zrobi© odswierzenie lisdty folderow na spinnerze - ZROBIONE
@@ -49,6 +50,8 @@ DONE- jak sie chowa spinner to aktualny folder na gorze sie wyświetli - ZROBION
 DONE - trzeba jeszcze poukladac ikonki - ZROBIONE
 DONE - posortowanie na liście od a do z - ZROBIONE
 DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu  -> jak nie ma folderu to wgrywamy do głównego aplikacji
+DONE  - toast - zminimalizowac i skrócić.  max 2-3 wyrazy
+DONE  - toast dać niżej bo wchodzi na przycisk
  */
     private lateinit var binding: ActivityMainBinding
     private var  imageCapture: ImageCapture? = null
@@ -216,22 +219,6 @@ DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjec
             mFile.mkdirs()
             return mFile
         }
-
-
-
-        /*
-        val mediaDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).let { mFile->
-            File(mFile, resources.getString(R.string.app_name)).apply {
-                mkdirs()
-            }
-        }*/
-
-        Log.d("bbbb", mFile.toString())
-        Log.d("bbbb", "tu:" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath())
-        //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()
-       // return if (mediaDir != null && mediaDir.exists())
-       //     mediaDir else filesDir
-
     }
 
 
@@ -239,21 +226,28 @@ DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjec
         val imageCapture = imageCapture ?: return
         if (folderSelectedPath == "") {
             folderSelectedPath = getOutputDirectory().toString()
-            folderSelectedPath = folderSelectedPath + "/"
         }
-        folderSelectedPath = folderSelectedPath + "/"
+        val fileName :String = SimpleDateFormat(
+            Constants.FILE_NAME_FORMAT,
+            Locale.getDefault()).format(System.currentTimeMillis()) + ".jpg"
+        var fileUri : Uri
         val photoFile = File(
                 folderSelectedPath,
            //     outputDirectory,
-                SimpleDateFormat(
-                    Constants.FILE_NAME_FORMAT,
-                        Locale.getDefault())
-                        .format(System
-                            .currentTimeMillis()) + ".jpg")
+                fileName)
+        var contentValues = ContentValues()
+
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME,fileName)
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+
+        fileUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+
+        //Uri.fromFile(photoFile)
 
         val outputOption = ImageCapture
                             .OutputFileOptions
                             .Builder(photoFile)
+                            //.Builder(contentResolver,fileUri ,contentValues)
                             .build()
 
         imageCapture.takePicture(
@@ -270,13 +264,21 @@ DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjec
                         Toast.LENGTH_SHORT
                     ).show()
 
-
+                    val csoundCameraShot = MediaPlayer.create(this@MainActivity,R.raw.camera_shot)
+                    csoundCameraShot.start()
 
 
                 }
 
                 override fun onError(exception: ImageCaptureException) {
                    Log.e(Constants.TAG, "onError: ${exception.message}", exception)
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Error:" + exception.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+
                 }
 
 
