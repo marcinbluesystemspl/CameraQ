@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
@@ -25,6 +26,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.contentValuesOf
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import com.leveron.cameraq.Constants.APP_NAME
 import com.leveron.cameraq.Constants.TAG
@@ -51,7 +53,7 @@ DONE - trzeba zrobi© odswierzenie lisdty folderow na spinnerze - ZROBIONE
 DONE- jak sie chowa spinner to aktualny folder na gorze sie wyświetli - ZROBIONE
 DONE - trzeba jeszcze poukladac ikonki - ZROBIONE
 DONE - posortowanie na liście od a do z - ZROBIONE
-DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu  -> jak nie ma folderu to wgrywamy do głównego aplikacji
+TODO -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu  -> jak nie ma folderu to wgrywamy do głównego aplikacji -> naprawione na API >30
 DONE  - toast - zminimalizowac i skrócić.  max 2-3 wyrazy
 DONE  - toast dać niżej bo wchodzi na przycisk
  */
@@ -166,12 +168,15 @@ DONE  - toast dać niżej bo wchodzi na przycisk
                     newFolder.mkdirs()
                     Toast.makeText(this, "Folder " + txtInputFolderName.text + " created", Toast.LENGTH_SHORT).show()
                 }
+                //ukryj klawiature
             it.hideKeyboard()
-            }
-        //dodałeś folder to przeładuj listę folderów w adapterze spinner
+                //dodałeś folder to przeładuj listę folderów w adapterze spinner
             reloadSpinnerAdapter(txtInputFolderName.text.toString())
-            //czysc folder
+                //czysc folder
             txtInputFolderName.text = null
+
+            }
+
 
 
         }
@@ -230,7 +235,6 @@ DONE  - toast dać niżej bo wchodzi na przycisk
         val fileName :String = SimpleDateFormat(
             Constants.FILE_NAME_FORMAT,
             Locale.getDefault()).format(System.currentTimeMillis()) + ".jpg"
-        var fileUri : Uri
         val photoFile = File(
                 folderSelectedPath,
            //     outputDirectory,
@@ -240,15 +244,29 @@ DONE  - toast dać niżej bo wchodzi na przycisk
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME,fileName)
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
 
-        fileUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        if (Build.VERSION.SDK_INT>29) {
+            contentValues.put(
+                MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM +
+                        File.separator + APP_NAME + File.separator + folderSelected
+            )
+        }
+        val fileUri : Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-        //Uri.fromFile(photoFile)
 
-        val outputOption = ImageCapture
-                            .OutputFileOptions
-                            .Builder(photoFile)
-                            //.Builder(contentResolver,fileUri ,contentValues)
-                            .build()
+
+        var outputOption = ImageCapture
+            .OutputFileOptions
+            .Builder(contentResolver,fileUri ,contentValues)
+            .build()
+        //jeżeli stary Android to inaczej definiuj outputOption inaczej nie bedzie odpowiedniego permission i zdjecie sie nie uda
+        if (Build.VERSION.SDK_INT <=29) {
+            outputOption = ImageCapture
+            .OutputFileOptions
+            .Builder(photoFile)
+            .build()
+        }
+
+
 
         imageCapture.takePicture(
             outputOption, ContextCompat.getMainExecutor(this),
@@ -256,7 +274,7 @@ DONE  - toast dać niżej bo wchodzi na przycisk
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
 
                     val savedUri = photoFile.name.toString()
-                    val msg = "Photo saved"
+                    val msg = R.string.photo_saved
 
                     val csoundCameraShot = MediaPlayer.create(this@MainActivity,R.raw.camera_shot)
                     csoundCameraShot.start()
@@ -264,8 +282,7 @@ DONE  - toast dać niżej bo wchodzi na przycisk
                     Toast.makeText(
                         this@MainActivity,
                         "$msg $savedUri",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        Toast.LENGTH_SHORT).show()
 
 
 

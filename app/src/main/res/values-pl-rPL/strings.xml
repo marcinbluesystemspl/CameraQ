@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CameraQ</string>
+    <string name="strzal">Strzał</string>
+    <string name="btnadd">Dodaj</string>
+    <string name="nazwa_folderu">Nazwa folderu…</string>
+    <string name="photo_saved">Zdjęcie zapisane</string>
+</resources>

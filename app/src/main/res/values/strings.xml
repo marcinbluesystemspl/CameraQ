@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">CameraQ</string>
-    <string name="strzal">Strzal</string>
+    <string name="strzal">Shot</string>
     <string name="btnadd">Add</string>
-    <string name="nazwa_folderu">Nazwa folderu...</string>
+    <string name="nazwa_folderu">New Folder…</string>
+    <string name="photo_saved">Photo saved</string>
 </resources>
