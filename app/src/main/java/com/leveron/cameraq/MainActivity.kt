@@ -18,6 +18,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -64,6 +65,7 @@ DONE  - toast dać niżej bo wchodzi na przycisk
     lateinit var folderSelected : String
     lateinit var folderSelectedPath: String
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -105,6 +107,7 @@ DONE  - toast dać niżej bo wchodzi na przycisk
             var files: Array<File>
             var spinnerList = arrayListOf<String>("Foldery:")
             spinnerList.clear()
+
 
             files = listOfDirs.listFiles(FileFilter { it.isDirectory })!!
             files.sort()
@@ -244,7 +247,7 @@ DONE  - toast dać niżej bo wchodzi na przycisk
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME,fileName)
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
 
-        if (Build.VERSION.SDK_INT>29) {
+        if (Build.VERSION.SDK_INT>=29) {
             contentValues.put(
                 MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM +
                         File.separator + APP_NAME + File.separator + folderSelected
@@ -259,7 +262,7 @@ DONE  - toast dać niżej bo wchodzi na przycisk
             .Builder(contentResolver,fileUri ,contentValues)
             .build()
         //jeżeli stary Android to inaczej definiuj outputOption inaczej nie bedzie odpowiedniego permission i zdjecie sie nie uda
-        if (Build.VERSION.SDK_INT <=29) {
+        if (Build.VERSION.SDK_INT <=28) {
             outputOption = ImageCapture
             .OutputFileOptions
             .Builder(photoFile)

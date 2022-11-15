@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="visible"
+    tools:context="com.leveron.cameraq.MainActivity">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/viewFinder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+    </androidx.camera.view.PreviewView>
+
+    <Button
+        android:id="@+id/btnStrzal"
+        android:layout_width="226dp"
+        android:layout_height="75dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="25dp"
+        android:background="@android:drawable/ic_menu_camera"
+        android:text="@string/strzal"
+        android:textSize="20sp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/viewFinder"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Spinner
+        android:id="@+id/txtFolder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/round_corner"
+        android:dropDownWidth="wrap_content"
+        android:padding="10dp"
+        android:minHeight="38dp"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toTopOf="@+id/btnStrzal"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/txtInputFolderName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="56dp"
+        android:alpha="127"
+        android:autofillHints=""
+        android:background="@drawable/round_corner"
+        android:hint="@string/nazwa_folderu"
+        android:inputType="text"
+        android:minHeight="38dp"
+        android:padding="10dp"
+        android:textColorHint="#757575"
+        android:visibility="visible"
+
+        app:layout_constraintBottom_toTopOf="@+id/btnStrzal"
+        app:layout_constraintEnd_toStartOf="@+id/btnAddFolder" />
+
+
+    <Button
+        android:id="@+id/btnAddFolder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="56dp"
+        android:minHeight="38dp"
+        android:padding="10dp"
+        android:text="@string/btnadd"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/btnStrzal"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
