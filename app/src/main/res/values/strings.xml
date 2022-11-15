@@ -4,4 +4,7 @@
     <string name="btnadd">Add</string>
     <string name="nazwa_folderu">New Folder…</string>
     <string name="photo_saved">Photo saved</string>
+    <string name="folder_name_required">Folder name required</string>
+    <string name="folder_already_exist">Folder already exist</string>
+    <string name="you_selected">You selected:</string>
 </resources>

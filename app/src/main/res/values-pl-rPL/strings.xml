@@ -5,4 +5,7 @@
     <string name="btnadd">Dodaj</string>
     <string name="nazwa_folderu">Nazwa folderu…</string>
     <string name="photo_saved">Zdjęcie zapisane</string>
+    <string name="folder_name_required">Podaj nazwe folderu</string>
+    <string name="folder_already_exist">Folder już istnieje</string>
+    <string name="you_selected">Wybrałeś:</string>
 </resources>

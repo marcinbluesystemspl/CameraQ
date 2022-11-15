@@ -106,8 +106,8 @@ DONE  - toast dać niżej bo wchodzi na przycisk
             var spinnerList = arrayListOf<String>("Foldery:")
             spinnerList.clear()
 
-                files = listOfDirs.listFiles(FileFilter { it.isDirectory })!!
-                files.sort()
+            files = listOfDirs.listFiles(FileFilter { it.isDirectory })!!
+            files.sort()
 
 
 
@@ -156,14 +156,14 @@ DONE  - toast dać niżej bo wchodzi na przycisk
 
 
             if (txtInputFolderName.length()==0){
-                Toast.makeText(this, "Folder name required", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.folder_name_required, Toast.LENGTH_SHORT).show()
             }else{
-                newFolder = File(listOfDirs.toString() + "/"+ txtInputFolderName.text)
+                newFolder = File(listOfDirs.toString() + File.separator + txtInputFolderName.text)
                 Log.d("cccc", listOfDirs.toString())
-                Log.d("cccc", listOfDirs.toString() + "/"+ txtInputFolderName.text)
+                Log.d("cccc", listOfDirs.toString() + File.separator + txtInputFolderName.text)
 
                 if (newFolder.exists()) {
-                    Toast.makeText(this, "Folder already exist", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.folder_already_exist, Toast.LENGTH_SHORT).show()
                 }else{
                     newFolder.mkdirs()
                     Toast.makeText(this, "Folder " + txtInputFolderName.text + " created", Toast.LENGTH_SHORT).show()
