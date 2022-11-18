@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.contentValuesOf
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import com.google.android.material.snackbar.Snackbar
 import com.leveron.cameraq.Constants.APP_NAME
 import com.leveron.cameraq.Constants.TAG
 import com.leveron.cameraq.R
@@ -282,10 +283,13 @@ DONE  - toast dać niżej bo wchodzi na przycisk
                     val csoundCameraShot = MediaPlayer.create(this@MainActivity,R.raw.camera_shot)
                     csoundCameraShot.start()
 
+                   /*
                     Toast.makeText(
                         this@MainActivity,
                         "$msg $savedUri",
                         Toast.LENGTH_SHORT).show()
+                    */
+                    Snackbar.make(binding.root, "$msg $savedUri" , Snackbar.LENGTH_SHORT).show()
 
 
 
