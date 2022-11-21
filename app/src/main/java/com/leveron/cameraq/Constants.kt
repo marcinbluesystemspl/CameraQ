@@ -14,6 +14,7 @@ val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA,
                                     Manifest.permission.READ_EXTERNAL_STORAGE,
                                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                     Manifest.permission.MANAGE_EXTERNAL_STORAGE,
-                                    Manifest.permission.MANAGE_MEDIA)
+                                    Manifest.permission.MANAGE_MEDIA,
+                                    Manifest.permission.INTERNET)
 
 }

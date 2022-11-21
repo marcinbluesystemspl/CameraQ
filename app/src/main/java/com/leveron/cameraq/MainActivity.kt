@@ -29,6 +29,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.contentValuesOf
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener
 import com.google.android.material.snackbar.Snackbar
 import com.leveron.cameraq.Constants.APP_NAME
 import com.leveron.cameraq.Constants.TAG
@@ -65,6 +69,10 @@ DONE  - toast dać niżej bo wchodzi na przycisk
     private lateinit var cameraExecutor: ExecutorService
     lateinit var folderSelected : String
     lateinit var folderSelectedPath: String
+    lateinit var mAdView : AdView
+
+
+
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,13 +84,10 @@ DONE  - toast dać niżej bo wchodzi na przycisk
         checkDate()
 
 
-
-
-
         setContentView(binding.root)
-        outputDirectory = getOutputDirectory()
-        folderSelectedPath = ""
-        cameraExecutor = Executors.newSingleThreadExecutor()
+
+
+
 
     if (allPermissionGranted()) {
         startCamera()
@@ -91,9 +96,21 @@ DONE  - toast dać niżej bo wchodzi na przycisk
             this, Constants.REQUIRED_PERMISSIONS,
             Constants.REQUEST_CODE_PERMISSIONS
         )
-
-
     }
+        //aktywuje reklame
+        MobileAds.initialize(this) {}
+
+        //mAdView = findViewById(R.id.adView)
+        mAdView = findViewById(R.id.adView)
+        //mAdView = binding.adView
+        val adRequest = AdRequest.Builder().build()
+        mAdView.loadAd(adRequest)
+        //ustawianie zmiennych
+
+        outputDirectory = getOutputDirectory()
+        folderSelectedPath = ""
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
 
         var spinner1 = binding.txtFolder
         var btnAdd = binding.btnAddFolder
