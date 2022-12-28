@@ -17,6 +17,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -55,7 +56,7 @@ class MainActivity : AppCompatActivity() {
     DONE- jak sie chowa spinner to aktualny folder na gorze sie wyświetli - ZROBIONE
     DONE - trzeba jeszcze poukladac ikonki - ZROBIONE
     DONE - posortowanie na liście od a do z - ZROBIONE
-    TODO -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu  -> jak nie ma folderu to wgrywamy do głównego aplikacji -> naprawione na API >30
+    DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu  -> jak nie ma folderu to wgrywamy do głównego aplikacji -> naprawione na API >30
     DONE  - toast - zminimalizowac i skrócić.  max 2-3 wyrazy
     DONE  - toast dać niżej bo wchodzi na przycisk
      */
@@ -63,14 +64,14 @@ class MainActivity : AppCompatActivity() {
     private var  imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
-    lateinit var folderSelected : String
+    var folderSelected =""
     lateinit var folderSelectedPath: String
     lateinit var mAdView : AdView
     lateinit var lastPictureFile: File
     private var lastPictureUri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
     private var storage = "Ntex"
-
-
+    lateinit var listOfDirs : File
+    lateinit var spinner1 : Spinner
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,22 +110,22 @@ class MainActivity : AppCompatActivity() {
          mAdView.loadAd(adRequest)
          //ustawianie zmiennych
      }
+
         outputDirectory = getOutputDirectory()
         folderSelectedPath = ""
         cameraExecutor = Executors.newSingleThreadExecutor()
 
 
-        var spinner1 = binding.txtFolder
-        var btnAdd = binding.btnAddFolder
-        var btnLastPicture = binding.btnLastPicture
-        var txtInputFolderName = binding.txtInputFolderName
-        var listOfDirs : File = getOutputDirectory()
+        spinner1 = binding.txtFolder
+        val btnAdd = binding.btnAddFolder
+        val btnLastPicture = binding.btnLastPicture
+        val txtInputFolderName = binding.txtInputFolderName
+        //var listOfDirs : File = getOutputDirectory()
+        listOfDirs = getOutputDirectory()
 
-
-
+        reloadSpinnerAdapter(text="")
+/*
        fun reloadSpinnerAdapter(text : String) {
-
-
             var files: Array<File>
             var spinnerList = arrayListOf<String>("Foldery:")
             spinnerList.clear()
@@ -153,7 +154,7 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-
+*/
         binding.btnStrzal.setOnClickListener {
             takePhoto()
         }
@@ -327,8 +328,6 @@ class MainActivity : AppCompatActivity() {
             .build()
         }
 
-
-
         imageCapture.takePicture(
             outputOption, ContextCompat.getMainExecutor(this),
             object :ImageCapture.OnImageSavedCallback{
@@ -446,7 +445,7 @@ class MainActivity : AppCompatActivity() {
         if(item.toString() == "Drutex") { storage = "Drutex"}
         if(item.toString() == "Other") { storage = "Other"}
         setTitle()
-
+        reloadSpinnerAdapter(text="")
 
         return super.onOptionsItemSelected(item)
     }
@@ -464,6 +463,35 @@ class MainActivity : AppCompatActivity() {
         cameraExecutor.shutdown()
     }
 
+
+    fun reloadSpinnerAdapter(text : String) {
+        var files: Array<File>
+        var spinnerList = arrayListOf<String>("Foldery:")
+        spinnerList.clear()
+        listOfDirs = getOutputDirectory()
+
+        files = listOfDirs.listFiles(FileFilter { it.isDirectory })!!
+        files.sort()
+
+
+
+        Log.d("aaaa", listOfDirs.toString())
+        for (a in files) {
+            spinnerList.add(a.name.toString())
+            Log.d("aaaa", a.name.toString())
+
+        }
+
+
+        val adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerList)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+
+        spinner1.adapter = adapter
+
+        if (text.isNotEmpty())  spinner1.setSelection(adapter.getPosition(text))
+
+    }
 
 
 
