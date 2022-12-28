@@ -8,4 +8,5 @@
     <string name="folder_name_required">Podaj nazwe folderu</string>
     <string name="folder_already_exist">Folder już istnieje</string>
     <string name="you_selected">Wybrałeś:</string>
+    <string name="take_first_photo">Zrób zdjęcie</string>
 </resources>

@@ -2,23 +2,24 @@ package com.leveron.cameraq
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Spinner
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -26,17 +27,11 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.contentValuesOf
-import androidx.core.net.toUri
-import androidx.core.view.isVisible
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener
 import com.google.android.material.snackbar.Snackbar
 import com.leveron.cameraq.Constants.APP_NAME
-import com.leveron.cameraq.Constants.TAG
-import com.leveron.cameraq.R
 import com.leveron.cameraq.databinding.ActivityMainBinding
 import java.io.File
 import java.io.FileFilter
@@ -47,22 +42,23 @@ import java.util.concurrent.Executors
 
 
 class MainActivity : AppCompatActivity() {
-/*
-Do zrobienia
 
-TODO - trzeba wyrzuci© spinnera na odzielny folder
-TODO - przełączenie pomiędzy zoomami z 0,0 na  zoom 0,5   / dwustanowy guzik /
-TODO - zrobić wersje zapisu zdjec dla API30
+    /*
+    Do zrobienia
 
-DONE - po dodaniu folderu nowego ustaw na niego focus - ZROBIONE
-DONE - trzeba zrobi© odswierzenie lisdty folderow na spinnerze - ZROBIONE
-DONE- jak sie chowa spinner to aktualny folder na gorze sie wyświetli - ZROBIONE
-DONE - trzeba jeszcze poukladac ikonki - ZROBIONE
-DONE - posortowanie na liście od a do z - ZROBIONE
-TODO -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu  -> jak nie ma folderu to wgrywamy do głównego aplikacji -> naprawione na API >30
-DONE  - toast - zminimalizowac i skrócić.  max 2-3 wyrazy
-DONE  - toast dać niżej bo wchodzi na przycisk
- */
+    TODO - trzeba wyrzuci© spinnera na odzielny folder
+    TODO - przełączenie pomiędzy zoomami z 0,0 na  zoom 0,5   / dwustanowy guzik /
+    TODO - zrobić wersje zapisu zdjec dla API30
+
+    DONE - po dodaniu folderu nowego ustaw na niego focus - ZROBIONE
+    DONE - trzeba zrobi© odswierzenie lisdty folderow na spinnerze - ZROBIONE
+    DONE- jak sie chowa spinner to aktualny folder na gorze sie wyświetli - ZROBIONE
+    DONE - trzeba jeszcze poukladac ikonki - ZROBIONE
+    DONE - posortowanie na liście od a do z - ZROBIONE
+    TODO -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu  -> jak nie ma folderu to wgrywamy do głównego aplikacji -> naprawione na API >30
+    DONE  - toast - zminimalizowac i skrócić.  max 2-3 wyrazy
+    DONE  - toast dać niżej bo wchodzi na przycisk
+     */
     private lateinit var binding: ActivityMainBinding
     private var  imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
@@ -70,7 +66,9 @@ DONE  - toast dać niżej bo wchodzi na przycisk
     lateinit var folderSelected : String
     lateinit var folderSelectedPath: String
     lateinit var mAdView : AdView
-
+    lateinit var lastPictureFile: File
+    private var lastPictureUri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    private var storage = "Ntex"
 
 
 
@@ -88,7 +86,6 @@ DONE  - toast dać niżej bo wchodzi na przycisk
 
 
 
-
     if (allPermissionGranted()) {
         startCamera()
     }else{
@@ -97,16 +94,21 @@ DONE  - toast dać niżej bo wchodzi na przycisk
             Constants.REQUEST_CODE_PERMISSIONS
         )
     }
-        //aktywuje reklame
-        MobileAds.initialize(this) {}
 
-        //mAdView = findViewById(R.id.adView)
-        mAdView = findViewById(R.id.adView)
-        //mAdView = binding.adView
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
-        //ustawianie zmiennych
 
+
+
+     if (Constants.ADVIEW) {
+         //aktywuje reklame
+         MobileAds.initialize(this) {}
+
+         //mAdView = findViewById(R.id.adView)
+         mAdView = findViewById(R.id.adView)
+         //mAdView = binding.adView
+         val adRequest = AdRequest.Builder().build()
+         mAdView.loadAd(adRequest)
+         //ustawianie zmiennych
+     }
         outputDirectory = getOutputDirectory()
         folderSelectedPath = ""
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -114,12 +116,13 @@ DONE  - toast dać niżej bo wchodzi na przycisk
 
         var spinner1 = binding.txtFolder
         var btnAdd = binding.btnAddFolder
+        var btnLastPicture = binding.btnLastPicture
         var txtInputFolderName = binding.txtInputFolderName
         var listOfDirs : File = getOutputDirectory()
 
 
 
-        fun reloadSpinnerAdapter(text : String) {
+       fun reloadSpinnerAdapter(text : String) {
 
 
             var files: Array<File>
@@ -160,11 +163,14 @@ DONE  - toast dać niżej bo wchodzi na przycisk
             {
                 spinner1.visibility = View.INVISIBLE
                 btnAdd.visibility = View.INVISIBLE
+                btnLastPicture?.visibility = View.INVISIBLE
                 txtInputFolderName.visibility = View.INVISIBLE
+
 
             }else{
                 spinner1.visibility = View.VISIBLE
                 btnAdd.visibility = View.VISIBLE
+                btnLastPicture?.visibility = View.VISIBLE
                 txtInputFolderName.visibility = View.VISIBLE
             }
 
@@ -172,22 +178,43 @@ DONE  - toast dać niżej bo wchodzi na przycisk
             true
         }
 
+
+        binding.btnLastPicture?.setOnClickListener{
+          //show last picture
+            if (lastPictureFile.toString() == ""){
+                Snackbar.make(binding.root, R.string.take_first_photo , Snackbar.LENGTH_SHORT).show()
+            }else {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_EDIT, Uri.parse("content://media/external/images/media/CameraQ/123345/2022-12-28-13-06-03-233.jpg")
+
+                    )
+                )
+            }
+
+
+
+        }
         binding.btnAddFolder.setOnClickListener {
             val newFolder : File
 
 
-            if (txtInputFolderName.length()==0){
-                Toast.makeText(this, R.string.folder_name_required, Toast.LENGTH_SHORT).show()
+            if (txtInputFolderName.length() == 0){
+                //Toast.makeText(this, R.string.folder_name_required, Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, R.string.folder_name_required , Snackbar.LENGTH_SHORT).show()
             }else{
+                listOfDirs = getOutputDirectory()
                 newFolder = File(listOfDirs.toString() + File.separator + txtInputFolderName.text)
                 Log.d("cccc", listOfDirs.toString())
                 Log.d("cccc", listOfDirs.toString() + File.separator + txtInputFolderName.text)
 
                 if (newFolder.exists()) {
-                    Toast.makeText(this, R.string.folder_already_exist, Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this, R.string.folder_already_exist, Toast.LENGTH_SHORT).show()
+                    Snackbar.make(binding.root, R.string.folder_already_exist , Snackbar.LENGTH_SHORT).show()
                 }else{
                     newFolder.mkdirs()
-                    Toast.makeText(this, "Folder " + txtInputFolderName.text + " created", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this, "Folder " + txtInputFolderName.text + " created", Toast.LENGTH_SHORT).show()
+                    Snackbar.make(binding.root, "Folder " + txtInputFolderName.text + " created", Snackbar.LENGTH_SHORT).show()
                 }
                 //ukryj klawiature
             it.hideKeyboard()
@@ -208,13 +235,15 @@ DONE  - toast dać niżej bo wchodzi na przycisk
         reloadSpinnerAdapter(text="")
         spinner1.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                Toast.makeText(this@MainActivity, "You selected:" +  p0?.getItemAtPosition(p2).toString(),
-                    Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this@MainActivity, "You selected:" +  p0?.getItemAtPosition(p2).toString(), Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root,  "You selected:" + storage + "-" + p0?.getItemAtPosition(p2).toString(), Snackbar.LENGTH_SHORT).show()
+
                 folderSelected = p0?.getItemAtPosition(p2).toString()
                 //ustaw folder na gornej belce
-                title = APP_NAME + " - " + folderSelected
+                setTitle()
 
                 //ustawe nowa sciezke do plikow
+                listOfDirs = getOutputDirectory()
                 folderSelectedPath = listOfDirs.toString() + "/" + folderSelected
 
             }
@@ -237,7 +266,7 @@ DONE  - toast dać niżej bo wchodzi na przycisk
             }
         }   */
         var mediaDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()
-        var mFile = File(mediaDir + "/" + resources.getString(R.string.app_name))
+        var mFile = File(mediaDir + "/" + resources.getString(R.string.app_name) + "/" + storage)
 
         if (mFile.exists() == true) {
             return mFile
@@ -248,6 +277,11 @@ DONE  - toast dać niżej bo wchodzi na przycisk
     }
 
 
+    private fun setTitle(){
+        title = "CQ: " + storage.take(4) + " - " + folderSelected.take(10)
+
+    }
+
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
         if (folderSelectedPath == "") {
@@ -256,10 +290,14 @@ DONE  - toast dać niżej bo wchodzi na przycisk
         val fileName :String = SimpleDateFormat(
             Constants.FILE_NAME_FORMAT,
             Locale.getDefault()).format(System.currentTimeMillis()) + ".jpg"
+
+
+
         val photoFile = File(
                 folderSelectedPath,
            //     outputDirectory,
                 fileName)
+        lastPictureFile = photoFile
         var contentValues = ContentValues()
 
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME,fileName)
@@ -268,11 +306,13 @@ DONE  - toast dać niżej bo wchodzi na przycisk
         if (Build.VERSION.SDK_INT>=29) {
             contentValues.put(
                 MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM +
-                        File.separator + APP_NAME + File.separator + folderSelected
+                        File.separator + APP_NAME + File.separator + storage + File.separator + folderSelected
             )
+            lastPictureUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            lastPictureUri = Uri.withAppendedPath(lastPictureUri, APP_NAME + File.separator + storage + File.separator + folderSelected + File.separator + fileName)
+
         }
         val fileUri : Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-
 
 
         var outputOption = ImageCapture
@@ -311,6 +351,7 @@ DONE  - toast dać niżej bo wchodzi na przycisk
 
 
 
+
                 }
 
                 override fun onError(exception: ImageCaptureException) {
@@ -319,13 +360,13 @@ DONE  - toast dać niżej bo wchodzi na przycisk
                     val csoundCameraShot = MediaPlayer.create(this@MainActivity,R.raw.camera_error)
                     csoundCameraShot.start()
 
-
+                    /*
                     Toast.makeText(
                         this@MainActivity,
                         "Error:" + exception.message,
                         Toast.LENGTH_SHORT
-                    ).show()
-
+                    ).show()   */
+                    Snackbar.make(binding.root, "Error:" + exception.message, Snackbar.LENGTH_SHORT).show()
 
                 }
 
@@ -388,13 +429,27 @@ DONE  - toast dać niżej bo wchodzi na przycisk
             startCamera()
         } else {
             Toast.makeText(this,  "Permission not granted by User" , Toast.LENGTH_SHORT).show()
+            //Snackbar.make(binding.root,  "Permission not granted by User" , Snackbar.LENGTH_LONG).show()
             finish()
 
         }
     }
+//podpinam menu oraz sprawdzam akcje menu
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_details,menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.toString() == "Ntex") { storage = "Ntex"}
+        if(item.toString() == "Norwood") { storage = "Norwood"}
+        if(item.toString() == "Drutex") { storage = "Drutex"}
+        if(item.toString() == "Other") { storage = "Other"}
+        setTitle()
 
 
-
+        return super.onOptionsItemSelected(item)
+    }
 
     private fun allPermissionGranted() =
         Constants.REQUIRED_PERMISSIONS.all {

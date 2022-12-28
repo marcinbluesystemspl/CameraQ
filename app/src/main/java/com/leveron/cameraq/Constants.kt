@@ -5,6 +5,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 
 object Constants {
+    //czy wyswietlac reklamy
+   const val ADVIEW = false
 const val TAG = "camerax"
 const val FILE_NAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
 const val REQUEST_CODE_PERMISSIONS = 123

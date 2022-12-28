@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/Ntex"
+        android:title="@string/Ntex"
+        />
+    <item
+        android:id="@+id/Drutex"
+        android:title="@string/Drutex"
+        />
+    <item
+        android:id="@+id/Norwood"
+        android:title="@string/Norwood"
+        />
+    <item
+        android:id="@+id/Inne"
+        android:title="@string/Other"
+        />
+</menu>

@@ -7,4 +7,9 @@
     <string name="folder_name_required">Folder name required</string>
     <string name="folder_already_exist">Folder already exist</string>
     <string name="you_selected">You selected:</string>
+    <string name="take_first_photo">Take first photo</string>
+    <string name="Ntex">Ntex</string>
+    <string name="Drutex">Drutex</string>
+    <string name="Norwood">Norwood</string>
+    <string name="Other">Other</string>
 </resources>

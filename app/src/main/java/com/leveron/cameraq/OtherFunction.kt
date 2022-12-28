@@ -13,7 +13,7 @@ import kotlin.system.exitProcess
 fun checkDate()
 {
     var  today : LocalDate =  LocalDate.now()
-    val validTill : LocalDate = LocalDate.parse("2022-12-30")
+    val validTill : LocalDate = LocalDate.parse("2023-04-30")
 
     if (today > validTill){
         //koniec programu
@@ -22,3 +22,4 @@ fun checkDate()
 
     }
 }
+
