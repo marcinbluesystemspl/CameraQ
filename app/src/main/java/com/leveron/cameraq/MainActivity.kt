@@ -28,6 +28,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
@@ -42,12 +43,13 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
+
 class MainActivity : AppCompatActivity() {
 
     /*
     Do zrobienia
 
-    TODO - trzeba wyrzuci© spinnera na odzielny folder
+    DONE - trzeba wyrzuci© spinnera na odzielny procedure
     TODO - przełączenie pomiędzy zoomami z 0,0 na  zoom 0,5   / dwustanowy guzik /
     TODO - zrobić wersje zapisu zdjec dla API30
 
@@ -59,6 +61,8 @@ class MainActivity : AppCompatActivity() {
     DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu  -> jak nie ma folderu to wgrywamy do głównego aplikacji -> naprawione na API >30
     DONE  - toast - zminimalizowac i skrócić.  max 2-3 wyrazy
     DONE  - toast dać niżej bo wchodzi na przycisk
+
+    TODO - trzeba dodać wywołanie nie galeri a konkretnego zdjęcia z galeri aby mozna było skasowac dane
      */
     private lateinit var binding: ActivityMainBinding
     private var  imageCapture: ImageCapture? = null
@@ -185,13 +189,21 @@ class MainActivity : AppCompatActivity() {
             if (lastPictureFile.toString() == ""){
                 Snackbar.make(binding.root, R.string.take_first_photo , Snackbar.LENGTH_SHORT).show()
             }else {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_EDIT, Uri.parse("content://media/external/images/media/CameraQ/123345/2022-12-28-13-06-03-233.jpg")
+                var uri1 : Uri
+                uri1 = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-                    )
-                )
+
+                val intent = Intent(Intent.ACTION_VIEW )
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                Log.d("eee",uri1.toString())
+                intent.data = uri1
+
+                startActivity(intent)
+
             }
+
+            // TODO - trzeba dodać wywołanie nie galeri a konkretnego zdjęcia z galeri aby mozna było skasowac dane
 
 
 
@@ -436,6 +448,7 @@ class MainActivity : AppCompatActivity() {
 //podpinam menu oraz sprawdzam akcje menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_details,menu)
+        //menu?.add("Ala ma kota")
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -464,7 +477,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun reloadSpinnerAdapter(text : String) {
+
+    private fun reloadSpinnerAdapter(text : String) {
         var files: Array<File>
         var spinnerList = arrayListOf<String>("Foldery:")
         spinnerList.clear()
