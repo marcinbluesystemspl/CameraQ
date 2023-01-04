@@ -9,4 +9,9 @@
     <string name="folder_already_exist">Folder już istnieje</string>
     <string name="you_selected">Wybrałeś:</string>
     <string name="take_first_photo">Zrób zdjęcie</string>
+    <string name="Ntex">Ntex</string>
+    <string name="Drutex">Drutex</string>
+    <string name="Norwood">Norwood</string>
+    <string name="Other">Other</string>
+    <string name="btnzoom">z1.0</string>
 </resources>

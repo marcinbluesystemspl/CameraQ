@@ -4,11 +4,14 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.Image
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.storage.StorageManager
+import android.os.storage.StorageVolume
 import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
@@ -22,10 +25,12 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraX
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.LifecycleCameraController
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -52,7 +57,7 @@ class MainActivity : AppCompatActivity() {
     DONE - trzeba wyrzuci© spinnera na odzielny procedure
     TODO - przełączenie pomiędzy zoomami z 0,0 na  zoom 0,5   / dwustanowy guzik /
     TODO - zrobić wersje zapisu zdjec dla API30
-
+    TODO - rotate urzadzenia nie zapisuje ustawienia magazynu ani wybranego stojaka
     DONE - po dodaniu folderu nowego ustaw na niego focus - ZROBIONE
     DONE - trzeba zrobi© odswierzenie lisdty folderow na spinnerze - ZROBIONE
     DONE- jak sie chowa spinner to aktualny folder na gorze sie wyświetli - ZROBIONE
@@ -61,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu  -> jak nie ma folderu to wgrywamy do głównego aplikacji -> naprawione na API >30
     DONE  - toast - zminimalizowac i skrócić.  max 2-3 wyrazy
     DONE  - toast dać niżej bo wchodzi na przycisk
-
+    TODO - dodac zachowanie zadań on resume
     TODO - trzeba dodać wywołanie nie galeri a konkretnego zdjęcia z galeri aby mozna było skasowac dane
      */
     private lateinit var binding: ActivityMainBinding
@@ -73,6 +78,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var mAdView : AdView
     lateinit var lastPictureFile: File
     private var lastPictureUri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    private var lastPictureUriSimple:  Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
     private var storage = "Ntex"
     lateinit var listOfDirs : File
     lateinit var spinner1 : Spinner
@@ -103,7 +109,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-     if (Constants.ADVIEW) {
+     if (Constants.ADVIEW == true) {
          //aktywuje reklame
          MobileAds.initialize(this) {}
 
@@ -128,38 +134,10 @@ class MainActivity : AppCompatActivity() {
         listOfDirs = getOutputDirectory()
 
         reloadSpinnerAdapter(text="")
-/*
-       fun reloadSpinnerAdapter(text : String) {
-            var files: Array<File>
-            var spinnerList = arrayListOf<String>("Foldery:")
-            spinnerList.clear()
 
-
-            files = listOfDirs.listFiles(FileFilter { it.isDirectory })!!
-            files.sort()
-
-
-
-            Log.d("aaaa", listOfDirs.toString())
-            for (a in files) {
-                spinnerList.add(a.name.toString())
-                Log.d("aaaa", a.name.toString())
-
-            }
-
-
-            val adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerList)
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-
-            spinner1.adapter = adapter
-
-            if (text.isNotEmpty())  spinner1.setSelection(adapter.getPosition(text))
-
-        }
-
-*/
         binding.btnStrzal.setOnClickListener {
+
+
             takePhoto()
         }
 
@@ -168,14 +146,14 @@ class MainActivity : AppCompatActivity() {
             {
                 spinner1.visibility = View.INVISIBLE
                 btnAdd.visibility = View.INVISIBLE
-                btnLastPicture?.visibility = View.INVISIBLE
+                btnLastPicture.visibility = View.INVISIBLE
                 txtInputFolderName.visibility = View.INVISIBLE
 
 
             }else{
                 spinner1.visibility = View.VISIBLE
                 btnAdd.visibility = View.VISIBLE
-                btnLastPicture?.visibility = View.VISIBLE
+                btnLastPicture.visibility = View.VISIBLE
                 txtInputFolderName.visibility = View.VISIBLE
             }
 
@@ -183,23 +161,81 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
+        binding.btnZoom.setOnClickListener{
 
-        binding.btnLastPicture?.setOnClickListener{
+            //ustawienie zoomu
+
+
+            // preview.camera?.cameraControl?.setZoomRatio(2.5F)
+            //imageCapture!!.camera?.cameraControl?.setZoomRatio(2.5F)
+            // Log.d("eee", imageCapture!!.camera?.cameraInfo?.zoomState.toString())
+
+            var zoom = 1.0F
+            val preview1 = Preview.Builder()
+                  .build()
+                  .also {mPreview->
+                      mPreview.setSurfaceProvider(
+                          binding.viewFinder.surfaceProvider
+
+                      )
+
+                  }
+            val cameraController = LifecycleCameraController(this)
+             // cameraController.unbind()
+            cameraController.bindToLifecycle(this)
+            val previewView = binding.viewFinder
+              previewView.controller = cameraController
+
+            when (binding.btnZoom.text) {
+                "1.0" -> {
+                    zoom = 1.0F
+                    binding.btnZoom.text = "1.5"
+                    }
+                "1.5" -> {
+                    zoom = 1.5F
+                    binding.btnZoom.text = "2.0"
+                    }
+                "2.0" -> {
+                    zoom = 2.0F
+                    binding.btnZoom.text = "1.0"
+                    }
+                else -> {
+                    zoom = 1.0F
+                    binding.btnZoom.text = "1.0"
+                    }
+            }
+
+
+            cameraController.setZoomRatio(zoom)
+
+
+              //preview1.camera?.cameraControl?.setZoomRatio(2.5F)
+              // imageCapture!!.camera?.cameraControl?.setZoomRatio(2.5F)
+              Log.d("eee", cameraController.zoomState.value.toString())
+              Log.d("eee", cameraController.cameraInfo?.zoomState?.value.toString())
+              Log.d("eee", cameraController.isRecording.toString())
+
+
+        }
+
+        binding.btnLastPicture.setOnClickListener{
           //show last picture
             if (lastPictureFile.toString() == ""){
                 Snackbar.make(binding.root, R.string.take_first_photo , Snackbar.LENGTH_SHORT).show()
             }else {
-                var uri1 : Uri
-                uri1 = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+               var uri1 : Uri
+               uri1 = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-
-                val intent = Intent(Intent.ACTION_VIEW )
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+               //uri1 = Uri.parse("/storage/emulated/0/DCIM/CameraQ/Ntex/2023-01-04-23-25-15-683.jpg")
+               val intent = Intent(Intent.ACTION_VIEW)
+              intent.setDataAndType(uri1,"image/*")
 
                 Log.d("eee",uri1.toString())
                 intent.data = uri1
 
                 startActivity(intent)
+              //  uri1 = Uri.parse("/storage/emulated/0/DCIM/CameraQ/Ntex/wwww/2023-01-04-23-37-28-562.jpg")
+              //  binding.btnLastPicture.setImageURI(uri1)
 
             }
 
@@ -323,7 +359,8 @@ class MainActivity : AppCompatActivity() {
             )
             lastPictureUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             lastPictureUri = Uri.withAppendedPath(lastPictureUri, APP_NAME + File.separator + storage + File.separator + folderSelected + File.separator + fileName)
-
+            lastPictureUriSimple = Uri.parse(Environment.DIRECTORY_DCIM +
+                             File.separator + APP_NAME + File.separator + storage + File.separator + folderSelected+ File.separator + fileName)
         }
         val fileUri : Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
@@ -346,8 +383,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
 
                     val savedUri = photoFile.name.toString()
-                    val msg = R.string.photo_saved
-
+                    val msg  = R.string.photo_saved.toString()
                     val csoundCameraShot = MediaPlayer.create(this@MainActivity,R.raw.camera_shot)
                     csoundCameraShot.start()
 
@@ -357,9 +393,11 @@ class MainActivity : AppCompatActivity() {
                         "$msg $savedUri",
                         Toast.LENGTH_SHORT).show()
                     */
-                    Snackbar.make(binding.root, "$msg $savedUri" , Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(binding.root, "$msg  $savedUri", Snackbar.LENGTH_SHORT).show()
 
 
+                binding.btnLastPicture.setImageURI(Uri.fromFile(photoFile))
+                    binding.btnLastPicture.visibility = View.VISIBLE
 
 
 
@@ -448,7 +486,7 @@ class MainActivity : AppCompatActivity() {
 //podpinam menu oraz sprawdzam akcje menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_details,menu)
-        //menu?.add("Ala ma kota")
+        //menu?.add("New")
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -489,10 +527,10 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        Log.d("aaaa", listOfDirs.toString())
+       Log.d("aaaa", listOfDirs.toString())
         for (a in files) {
             spinnerList.add(a.name.toString())
-            Log.d("aaaa", a.name.toString())
+           Log.d("aaaa", a.name.toString())
 
         }
 
