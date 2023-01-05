@@ -57,8 +57,8 @@ class MainActivity : AppCompatActivity() {
 
     DONE - trzeba wyrzuci© spinnera na odzielny procedure
     TODO - przełączenie pomiędzy zoomami z 0,0 na  zoom 0,5   / dwustanowy guzik /
-    TODO - zrobić wersje zapisu zdjec dla API30
-    TODO - rotate urzadzenia nie zapisuje ustawienia magazynu ani wybranego stojaka
+    DONE - zrobić wersje zapisu zdjec dla API30
+    DONE - rotate urzadzenia nie zapisuje ustawienia magazynu ani wybranego stojaka
     DONE - po dodaniu folderu nowego ustaw na niego focus - ZROBIONE
     DONE - trzeba zrobi© odswierzenie lisdty folderow na spinnerze - ZROBIONE
     DONE- jak sie chowa spinner to aktualny folder na gorze sie wyświetli - ZROBIONE
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     DONE -  trzeba ograc przypadek gdy nie ma folderow wtedy poleci crash przy zdjeciu  -> jak nie ma folderu to wgrywamy do głównego aplikacji -> naprawione na API >30
     DONE  - toast - zminimalizowac i skrócić.  max 2-3 wyrazy
     DONE  - toast dać niżej bo wchodzi na przycisk
-    TODO - dodac zachowanie zadań on resume
+    DONE - dodac zachowanie zadań on resume
     TODO - trzeba dodać wywołanie nie galeri a konkretnego zdjęcia z galeri aby mozna było skasowac dane
      */
     private lateinit var binding: ActivityMainBinding
@@ -100,6 +100,7 @@ class MainActivity : AppCompatActivity() {
         storage = savedInstanceState.getString("storage").toString()
         folderSelected = savedInstanceState.getString("folderSelected").toString()
         folderSelectedPath = savedInstanceState.getString("folderSelectedPath").toString()
+        //reloadSpinnerAdapter(folderSelected)
     }
 
 
@@ -138,6 +139,9 @@ class MainActivity : AppCompatActivity() {
         val btnAdd = binding.btnAddFolder
         val btnLastPicture = binding.btnLastPicture
         val txtInputFolderName = binding.txtInputFolderName
+        val btnZoom = binding.btnZoom
+
+        btnZoom.visibility = View.INVISIBLE
         //var listOfDirs : File = getOutputDirectory()
         listOfDirs = getOutputDirectory()
 
@@ -156,13 +160,14 @@ class MainActivity : AppCompatActivity() {
                 btnAdd.visibility = View.INVISIBLE
                 btnLastPicture.visibility = View.INVISIBLE
                 txtInputFolderName.visibility = View.INVISIBLE
-
+                btnZoom.visibility = View.INVISIBLE
 
             }else{
                 spinner1.visibility = View.VISIBLE
                 btnAdd.visibility = View.VISIBLE
                 btnLastPicture.visibility = View.VISIBLE
                 txtInputFolderName.visibility = View.VISIBLE
+                btnZoom.visibility = View.VISIBLE
             }
 
 
