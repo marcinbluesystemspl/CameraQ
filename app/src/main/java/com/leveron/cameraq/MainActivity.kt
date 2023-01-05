@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.PersistableBundle
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import android.provider.MediaStore
@@ -95,7 +96,14 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(binding.root)
 
+    if (savedInstanceState != null) {
+        storage = savedInstanceState.getString("storage").toString()
+        folderSelected = savedInstanceState.getString("folderSelected").toString()
+        folderSelectedPath = savedInstanceState.getString("folderSelectedPath").toString()
+    }
 
+
+        setTitle()
 
     if (allPermissionGranted()) {
         startCamera()
@@ -185,7 +193,7 @@ class MainActivity : AppCompatActivity() {
             cameraController.bindToLifecycle(this)
             val previewView = binding.viewFinder
               previewView.controller = cameraController
-
+            val preview =
             when (binding.btnZoom.text) {
                 "1.0" -> {
                     zoom = 1.0F
@@ -206,14 +214,14 @@ class MainActivity : AppCompatActivity() {
             }
 
 
-            cameraController.setZoomRatio(zoom)
+
 
 
               //preview1.camera?.cameraControl?.setZoomRatio(2.5F)
               // imageCapture!!.camera?.cameraControl?.setZoomRatio(2.5F)
               Log.d("eee", cameraController.zoomState.value.toString())
               Log.d("eee", cameraController.cameraInfo?.zoomState?.value.toString())
-              Log.d("eee", cameraController.isRecording.toString())
+             // Log.d("eee", cameraController.cameraInfo.zoomRatio.value)
 
 
         }
@@ -514,6 +522,17 @@ class MainActivity : AppCompatActivity() {
         cameraExecutor.shutdown()
     }
 
+    override fun onResume() {
+        super.onResume()
+        reloadSpinnerAdapter(text="")
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("storage", storage)
+        outState.putString("folderSelected" , folderSelected)
+        outState.putString("folderSelectedPath",folderSelectedPath)
+
+    }
 
 
     private fun reloadSpinnerAdapter(text : String) {
